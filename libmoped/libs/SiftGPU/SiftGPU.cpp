@@ -46,6 +46,7 @@ using namespace std;
 #include "SiftPyramid.h"
 #include "PyramidGL.h"
 
+#include <unistd.h>
 //CUDA works only with vc8 or higher
 #if (!defined(_MSC_VER) ||_MSC_VER >= 1400) && defined(CUDA_SIFTGPU_ENABLED)
 #include "PyramidCU.h"

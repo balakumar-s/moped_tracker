@@ -8,10 +8,18 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   pr_msgs
 )
+find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
 find_package(OpenCV REQUIRED)
-MESSAGE(STATUS "OpenCV library is: ${OpenCV_VERSION}")
+find_package(OpenMP REQUIRED)
+find_package(DevIL REQUIRED)
+find_package(GLUT REQUIRED)
+MESSAGE(STATUS "OpenCV library is: ${GLUT_LIBRARIES}")
 
-add_custom_target(BUILD_LIBMOPED DEPENDS libmoped.a )
+set(INCLUDE_DIRS ${INCLUDE_DIRS}  ${OpenCV_INCLUDE_DIRS}  ${OPENMP_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${IL_INCLUDE_DIRS}) 
+set(LIBS ${LIBS}  ${OPENMP_LIBRARIES} ${OPENGL_LIBRARY} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES} ${IL_LIBRARIES}) 
+
+add_custom_target(BUILD_LIBMOPED DEPENDS libmoped.a ${LIBS})
 add_custom_command(OUTPUT libmoped.a 
                    DEPENDS ${PROJECT_SOURCE_DIR}/libmoped/src/moped.cpp
                    DEPENDS ${PROJECT_SOURCE_DIR}/libmoped/src/config.hpp
@@ -32,27 +40,26 @@ catkin_package(
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${INCLUDE_DIRS}
 )
 
 add_executable(moped2 moped.cpp)
 set_target_properties(moped2 PROPERTIES COMPILE_FLAGS "-O3 -Wall -march=native -mfpmath=sse -fopenmp")
 set_target_properties(moped2 PROPERTIES LINK_FLAGS "-Wl,--start-group")
-target_link_libraries(moped2 gomp GLEW glut IL ${PROJECT_SOURCE_DIR}/libmoped/lib/libmoped.a ${OpenCV_LIBS})
+target_link_libraries(moped2 IL gomp ${PROJECT_SOURCE_DIR}/libmoped/lib/libmoped.a ${OpenCV_LIBS} ${catkin_LIBRARIES} ${LIBS})
 
 
 add_dependencies(moped2 BUILD_LIBMOPED)
 
-add_custom_command(TARGET moped2 PRE_BUILD COMMAND ./find_opencv2.sh WORKING_DIRECTORY ..)
+
 
 add_executable(moped2_test moped_test.cpp)
 set_target_properties(moped2_test PROPERTIES COMPILE_FLAGS "-O3 -Wall -march=native -mfpmath=sse -fopenmp")
 set_target_properties(moped2_test PROPERTIES LINK_FLAGS "-Wl,--start-group")
-target_link_libraries(moped2_test gomp GLEW glut IL ${PROJECT_SOURCE_DIR}/libmoped/lib/libmoped.a ${OpenCV_LIBS})
+target_link_libraries(moped2_test gomp IL ${PROJECT_SOURCE_DIR}/libmoped/lib/libmoped.a ${OpenCV_LIBS} ${catkin_LIBRARIES} ${LIBS})
 
 
 add_dependencies(moped2_test BUILD_LIBMOPED)
-
-add_custom_command(TARGET moped2 PRE_BUILD COMMAND ./find_opencv2.sh WORKING_DIRECTORY ..)
 
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)

@@ -170,9 +170,10 @@ public:
 	void process( const sensor_msgs::ImageConstPtr& in ) {
 		
     if (Enabled){
-      sensor_msgs::cv_bridge bridge;
-      
-      IplImage *gs = bridge.imgMsgToCv( in );
+      //sensor_msgs::cv_bridge bridge;
+      cv_bridge::CvImagePtr cv_ptr;
+      IplImage *gs;
+      cv_ptr = cv_bridge::toCvCopy(in);
     
       vector<SP_Image> images;
       
